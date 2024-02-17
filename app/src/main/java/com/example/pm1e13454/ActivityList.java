@@ -2,15 +2,21 @@ package com.example.pm1e13454;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Base64;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -31,8 +37,9 @@ import Configuracion.Transacciones;
 import Models.Contactos;
 
 public class ActivityList extends AppCompatActivity {
+    GestureDetector gestureDetector;
     SQLiteConexion conexion;
-    Button btnRegresarHome, btnVerImagen;
+    Button btnRegresarHome, btnVerImagen, btnCompartir;
     ListView listContact;
     ArrayList<Contactos> lista;
     ArrayList<String> Arreglo;
@@ -59,7 +66,9 @@ public class ActivityList extends AppCompatActivity {
         btnVerImagen.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(contactoSelected.getImagen().isEmpty() || contactoSelected.getImagen() == null){
+                if(contactoSelected == null){
+                    Toast.makeText(getApplicationContext(), "No tiene ningun contacto seleccionado", Toast.LENGTH_LONG).show();
+                }else if(contactoSelected.getImagen().isEmpty()){
                     Toast.makeText(getApplicationContext(), "No se puede visualizar la imagen", Toast.LENGTH_LONG).show();
                 }
                 else{
@@ -82,11 +91,70 @@ public class ActivityList extends AppCompatActivity {
             }
         });
 
+        btnCompartir= (Button) findViewById(R.id.btnCompartirContacto);
+        btnCompartir.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(contactoSelected == null){
+                    Toast.makeText(getApplicationContext(), "No tiene ningun contacto seleccionado", Toast.LENGTH_LONG).show();
+                }else{
+                    String mensaje = "Datos del contacto:\n" +
+                            "- Nombre: " + contactoSelected.getNombre() + "\n" +
+                            "- Teléfono: +(" + contactoSelected.getPais() + ") " + contactoSelected.getTelefono();
+                    Intent intent = new Intent(Intent.ACTION_SEND);
+                    intent.setType("text/plain");
+                    intent.putExtra(Intent.EXTRA_TEXT, mensaje);
+                    startActivity(Intent.createChooser(intent, "Compartir a través de:"));
+                }
+
+            }
+        });
 
         listContact.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 contactoSelected = lista.get(position);
+            }
+        });
+
+        gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onDoubleTap(MotionEvent e) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(ActivityList.this);
+                builder.setTitle("¿Desea llamar a " + contactoSelected.getNombre() + "?")
+                        .setMessage("Número de telefono +" + contactoSelected.getPais()+ " " + contactoSelected.getTelefono())
+                        .setPositiveButton("Llamar", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                String telefono = contactoSelected.getTelefono();
+                                Intent intent = new Intent(Intent.ACTION_CALL);
+                                intent.setData(Uri.parse("tel:" + telefono));
+
+                                // Verificar si tienes permiso para realizar la llamada
+                                if (ActivityCompat.checkSelfPermission(ActivityList.this, android.Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                                    // Si no tienes permiso, solicitar al usuario que lo conceda
+                                    ActivityCompat.requestPermissions(ActivityList.this, new String[]{android.Manifest.permission.CALL_PHONE}, 1);
+                                } else {
+                                    // Si tienes permiso, iniciar la actividad del intent para realizar la llamada
+                                    startActivity(intent);
+                                }
+                            }
+                        })
+                        .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        })
+                        .show();
+               return true;
+            }
+        });
+
+        listContact.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return gestureDetector.onTouchEvent(event);
             }
         });
     }
