@@ -116,14 +116,10 @@ public class ActivityList extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 contactoSelected = lista.get(position);
                 idContacto = contactoSelected.getId().toString();
-
-                if(position == selectedItem){
-                    view.setBackgroundResource(com.google.android.material.R.color.m3_ref_palette_white);
-
-                }else{
-                    view.setBackgroundResource(com.google.android.material.R.color.material_dynamic_neutral90);
+                for (int i = 0; i < parent.getChildCount(); i++) {
+                    parent.getChildAt(i).setBackgroundResource(com.google.android.material.R.color.m3_ref_palette_white);
                 }
-
+                view.setBackgroundResource(com.google.android.material.R.color.material_dynamic_neutral90);
             }
         });
         gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {

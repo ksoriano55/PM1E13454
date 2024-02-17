@@ -1,38 +1,49 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="16dp">
 
-    <EditText
-        android:id="@+id/txtCodPais"
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="@string/txtCodPais"
-        android:inputType="text" />
+        android:hint="@string/txtCodPais">
 
-    <EditText
-        android:id="@+id/txtPais"
+        <EditText
+            android:id="@+id/txtCodPais"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="@string/txtPais"
-        android:inputType="text" />
+        android:hint="@string/txtPais">
+
+        <EditText
+            android:id="@+id/txtPais"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text" />
+
+    </com.google.android.material.textfield.TextInputLayout>
 
     <Button
         android:id="@+id/btnGuardarPais"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:backgroundTint="#2196F3"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="@color/teal_700"
         android:text="Guardar" />
 
     <Button
         android:id="@+id/btnCancelarPais"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:backgroundTint="#2196F3"
-        android:text="Cancelar"
-        android:verticalScrollbarPosition="right" />
+        android:layout_marginTop="8dp"
+        android:backgroundTint="@color/design_default_color_on_secondary"
+        android:text="Cancelar" />
 
 </LinearLayout>

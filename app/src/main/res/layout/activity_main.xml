@@ -7,10 +7,10 @@
     tools:context=".MainActivity">
 
 
-    <ImageView
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/fotoContacto"
-        android:layout_width="224dp"
-        android:layout_height="203dp"
+        android:layout_width="195dp"
+        android:layout_height="187dp"
         android:layout_marginStart="80dp"
         android:layout_marginTop="44dp"
         android:layout_marginEnd="80dp"
@@ -22,11 +22,12 @@
 
     <Spinner
         android:id="@+id/spinnerPais"
-        android:layout_width="244dp"
-        android:layout_height="36dp"
+        android:layout_width="258dp"
+        android:layout_height="54dp"
         android:layout_marginTop="56dp"
+        app:layout_constraintBottom_toTopOf="@+id/txtNombre"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.323"
+        app:layout_constraintHorizontal_bias="0.359"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/fotoContacto" />
 
@@ -58,8 +59,8 @@
 
     <EditText
         android:id="@+id/txtNota"
-        android:layout_width="301dp"
-        android:layout_height="127dp"
+        android:layout_width="300dp"
+        android:layout_height="78dp"
         android:layout_marginTop="8dp"
         android:ems="10"
         android:gravity="start|top"
@@ -71,8 +72,8 @@
 
     <Button
         android:id="@+id/btnGuardarContacto"
-        android:layout_width="175dp"
-        android:layout_height="70dp"
+        android:layout_width="126dp"
+        android:layout_height="52dp"
         android:layout_marginStart="10dp"
         android:layout_marginTop="30dp"
         android:backgroundTint="#009688"
@@ -84,8 +85,8 @@
 
     <Button
         android:id="@+id/btnListaContacto"
-        android:layout_width="175dp"
-        android:layout_height="70dp"
+        android:layout_width="130dp"
+        android:layout_height="52dp"
         android:layout_marginStart="17dp"
         android:layout_marginTop="30dp"
         android:layout_marginEnd="10dp"
@@ -97,8 +98,8 @@
 
     <Button
         android:id="@+id/btnAgregarPais"
-        android:layout_width="44dp"
-        android:layout_height="38dp"
+        android:layout_width="48dp"
+        android:layout_height="57dp"
         android:layout_marginTop="56dp"
         android:backgroundTint="#009688"
         android:text="+"
@@ -111,21 +112,24 @@
         android:id="@+id/editTextCodigo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Código" />
+        android:hint="Código"
+        android:visibility="invisible" />
 
     <EditText
         android:id="@+id/editTextPais"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="País" />
+        android:hint="País"
+        android:visibility="invisible" />
 
     <Button
         android:id="@+id/btnTomarFoto"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/btnFoto"
+        android:layout_width="63dp"
+        android:layout_height="48dp"
+        android:backgroundTint="@color/black"
+        app:icon="@android:drawable/ic_menu_camera"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintHorizontal_bias="0.505"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/fotoContacto" />
 </androidx.constraintlayout.widget.ConstraintLayout>
