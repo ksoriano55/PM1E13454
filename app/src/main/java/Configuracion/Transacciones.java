@@ -17,4 +17,5 @@ public class Transacciones {
 
     public static final String DropTableContactos = "DROP TABLE IF EXISTS "+ TableContactos;
 
+    public static final String SelectAllContacts = "SELECT * FROM " + TableContactos;
 }
