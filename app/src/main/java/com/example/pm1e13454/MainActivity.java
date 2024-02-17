@@ -282,8 +282,9 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "¡Es obligatorio el campo nota!", Toast.LENGTH_LONG).show();
         }else if(!p.matcher(telefono.getText().toString()).matches()){
             Toast.makeText(getApplicationContext(), "¡Formato invalido para campo telefono!", Toast.LENGTH_LONG).show();
-        }
-        else{
+        } else if (codigoPais == null) {
+            Toast.makeText(getApplicationContext(), "¡Debe registrar un pais para registrar un contacto!", Toast.LENGTH_LONG).show();
+        } else{
             SQLiteConexion conexion = new SQLiteConexion(this, Transacciones.DBName, null, 1);
             SQLiteDatabase db = conexion.getWritableDatabase();
             ContentValues valores = new ContentValues();
