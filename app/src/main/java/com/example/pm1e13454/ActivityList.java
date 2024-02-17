@@ -2,15 +2,14 @@ package com.example.pm1e13454;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Interpolator;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Base64;
@@ -31,7 +30,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
+import androidx.core.app.ActivityCompat;
+import android.content.pm.PackageManager;
 import Configuracion.SQLiteConexion;
 import Configuracion.Transacciones;
 import Models.Contactos;
@@ -39,11 +39,13 @@ import Models.Contactos;
 public class ActivityList extends AppCompatActivity {
     GestureDetector gestureDetector;
     SQLiteConexion conexion;
-    Button btnRegresarHome, btnVerImagen, btnCompartir;
+    Button btnRegresarHome, btnVerImagen, btnEliminar, btnActualizar,btnCompartir;
     ListView listContact;
     ArrayList<Contactos> lista;
     ArrayList<String> Arreglo;
     Contactos contactoSelected;
+    String idContacto = "0";
+    int selectedItem = -1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,7 +70,8 @@ public class ActivityList extends AppCompatActivity {
             public void onClick(View v) {
                 if(contactoSelected == null){
                     Toast.makeText(getApplicationContext(), "No tiene ningun contacto seleccionado", Toast.LENGTH_LONG).show();
-                }else if(contactoSelected.getImagen().isEmpty()){
+                }else
+                if(contactoSelected.getImagen().isEmpty() || contactoSelected.getImagen() == null){
                     Toast.makeText(getApplicationContext(), "No se puede visualizar la imagen", Toast.LENGTH_LONG).show();
                 }
                 else{
@@ -90,7 +93,6 @@ public class ActivityList extends AppCompatActivity {
                 }
             }
         });
-
         btnCompartir= (Button) findViewById(R.id.btnCompartirContacto);
         btnCompartir.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -109,20 +111,26 @@ public class ActivityList extends AppCompatActivity {
 
             }
         });
-
         listContact.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 contactoSelected = lista.get(position);
+                idContacto = contactoSelected.getId().toString();
+
+                if(position == selectedItem){
+                    view.setBackgroundResource(com.google.android.material.R.color.m3_ref_palette_white);
+
+                }else{
+                    view.setBackgroundResource(com.google.android.material.R.color.material_dynamic_neutral90);
+                }
+
             }
         });
-
         gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
-            @Override
             public boolean onDoubleTap(MotionEvent e) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(ActivityList.this);
                 builder.setTitle("¿Desea llamar a " + contactoSelected.getNombre() + "?")
-                        .setMessage("Número de telefono +" + contactoSelected.getPais()+ " " + contactoSelected.getTelefono())
+                        .setMessage("Número de telefono +" + contactoSelected.getPais() + " " + contactoSelected.getTelefono())
                         .setPositiveButton("Llamar", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -147,7 +155,7 @@ public class ActivityList extends AppCompatActivity {
                             }
                         })
                         .show();
-               return true;
+                return true;
             }
         });
 
@@ -157,8 +165,72 @@ public class ActivityList extends AppCompatActivity {
                 return gestureDetector.onTouchEvent(event);
             }
         });
+
+        btnEliminar = (Button) findViewById(R.id.btnEliminar);
+
+        btnEliminar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if(idContacto == "0"){
+                    Toast.makeText(getApplicationContext(), "Favor seleccione un registro",
+                            Toast.LENGTH_LONG).show();
+                }else{
+                    MensajeEliminar();
+                }
+            }
+        });
+
+        btnActualizar = (Button) findViewById(R.id.btnActualizar);
+        btnActualizar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(idContacto == "0"){
+                    Toast.makeText(getApplicationContext(), "Favor seleccione un registro",
+                            Toast.LENGTH_LONG).show();
+                }else{
+                    EnviarInfoActualizar();
+                }
+            }
+        });
     }
 
+    private void MensajeEliminar(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("¿Seguro que desea eliminar este registro?")
+                .setPositiveButton("Si", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        EliminarContacto();
+                        ObtenerContactos();
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                    }
+                });
+        builder.create().show();
+    }
+
+    private void EnviarInfoActualizar(){
+        Intent intent = new Intent(ActivityList.this, MainActivity.class);
+
+        intent.putExtra("Id", contactoSelected.getId().toString());
+        intent.putExtra("Pais", contactoSelected.getPais());
+        intent.putExtra("Nombre", contactoSelected.getNombre());
+        intent.putExtra("Telefono", contactoSelected.getTelefono());
+        intent.putExtra("Nota", contactoSelected.getNota());
+        intent.putExtra("Imagen", contactoSelected.getImagen());
+        startActivity(intent);
+    }
+    private void EliminarContacto(){
+        SQLiteConexion conexion = new SQLiteConexion(this, Transacciones.DBName, null, 1);
+        SQLiteDatabase db = conexion.getWritableDatabase();
+
+        int rowDelete = db.delete(Transacciones.TableContactos, Transacciones.id + "=?", new String[]{idContacto});
+        Toast.makeText(getApplicationContext(), "Registro Eliminado ", Toast.LENGTH_LONG).show();
+        db.close();
+
+    }
     private void ObtenerContactos() {
         SQLiteDatabase db = conexion.getReadableDatabase();
         Contactos contacts = null;

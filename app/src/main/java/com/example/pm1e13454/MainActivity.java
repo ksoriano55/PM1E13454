@@ -14,6 +14,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Base64;
@@ -30,6 +31,7 @@ import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import Configuracion.PaisesTrans;
@@ -43,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
     static final int  peticion_foto = 101;
     Spinner cbxPais;
     Button btnListaContacto, btnGuardarContacto, btnAgregarPais, btnTomarFoto;
-    String imagenBase64;
+    String imagenBase64, idContacto, codPaisSelected;
     Integer codigoPais;
     ImageView imageView;
     ArrayList<Paises> lista;
@@ -59,6 +61,23 @@ public class MainActivity extends AppCompatActivity {
         nota = (EditText) findViewById(R.id.txtNota);
         imageView = (ImageView) findViewById(R.id.fotoContacto);
 
+        //**********EDITAR***********//
+        Intent intent = getIntent();
+        if(intent.getExtras() != null){
+            idContacto = intent.getStringExtra("Id");
+            codPaisSelected = intent.getStringExtra("Pais");
+            String nombreVal = intent.getStringExtra("Nombre");
+            String telefonoVal = intent.getStringExtra("Telefono");
+            String notaVal = intent.getStringExtra("Nota");
+            String imagenBase64 = intent.getStringExtra("Imagen");
+
+            nombre.setText(nombreVal);
+            telefono.setText(String.valueOf(telefonoVal));
+            nota.setText(notaVal);
+            if(imagenBase64 != null){
+                VerImagen(imagenBase64);
+            }
+        }
         //**********BOTONES**********//
         btnListaContacto = (Button) findViewById(R.id.btnListaContacto);
         btnGuardarContacto = (Button) findViewById(R.id.btnGuardarContacto);
@@ -76,7 +95,12 @@ public class MainActivity extends AppCompatActivity {
         btnGuardarContacto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AgregarContacto();
+                if(intent.getExtras() != null){
+                    EditarContacto();
+                }else{
+                    AgregarContacto();
+                    ClearTexts();
+                }
             }
         });
         btnAgregarPais.setOnClickListener(new View.OnClickListener() {
@@ -149,13 +173,71 @@ public class MainActivity extends AppCompatActivity {
         ///********  Fin Combo Paises------------------*****************////////////
     }
 
+    private void VerImagen(String img) {
+        byte[] decodedString = Base64.decode(img, Base64.DEFAULT);
+        Bitmap bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+        imageView.setImageBitmap(bitmap);
+    }
+
+    private void EditarContacto(){
+        Pattern p = Pattern.compile("[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]");
+        if(nombre.getText().toString().isEmpty()){
+            Toast.makeText(getApplicationContext(), "¡Es obligatorio el campo nombre!", Toast.LENGTH_LONG).show();
+        }
+        else if(telefono.getText().toString().isEmpty()){
+            Toast.makeText(getApplicationContext(), "¡Es obligatorio el campo telefono!", Toast.LENGTH_LONG).show();
+        }else if(nota.getText().toString().isEmpty()){
+            Toast.makeText(getApplicationContext(), "¡Es obligatorio el campo nota!", Toast.LENGTH_LONG).show();
+        }else if(!p.matcher(telefono.getText().toString()).matches()){
+            Toast.makeText(getApplicationContext(), "¡Formato invalido para campo telefono!", Toast.LENGTH_LONG).show();
+        }
+        else{
+            SQLiteConexion conexion = new SQLiteConexion(this, Transacciones.DBName, null, 1);
+            SQLiteDatabase db = conexion.getWritableDatabase();
+            ContentValues valores = new ContentValues();
+            valores.put(Transacciones.nombre, nombre.getText().toString());
+            valores.put(Transacciones.telefono, telefono.getText().toString());
+            valores.put(Transacciones.pais, codigoPais);
+            valores.put(Transacciones.nota, nota.getText().toString());
+            valores.put(Transacciones.imagen, imagenBase64);
+
+            int resultado = db.update(Transacciones.TableContactos,valores, Transacciones.id+"=?", new String[]{idContacto});
+
+            Toast.makeText(getApplicationContext(), "Registro Ingresado con exito ",
+                    Toast.LENGTH_LONG).show();
+
+            db.close();
+        }
+    }
     private void llenarCombo(){
         ObtenerPaises();
         ArrayAdapter<CharSequence> adapter = new ArrayAdapter(this,
                 android.R.layout.simple_spinner_item, PaisesList);
 
         cbxPais.setAdapter(adapter);
+
+        int position = getPositionByCode(PaisesList, codPaisSelected);
+
+        if(position != -1){
+            cbxPais.setSelection(position);
+        }
     }
+
+    private void ClearTexts(){
+        nombre.setText(""); telefono.setText(""); nota.setText("");
+    }
+
+    private int getPositionByCode(List<String> list, String code) {
+        for (int i = 0; i < list.size(); i++) {
+            String item = list.get(i);
+            String[] parts = item.split(" - ");
+            if (parts.length == 2 && parts[1].equals(code)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     private void ObtenerPaises()
     {
         SQLiteConexion conexion = new SQLiteConexion(this, Transacciones.DBName, null, 1);
