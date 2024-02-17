@@ -3,12 +3,12 @@ package Models;
 public class Contactos {
     private Integer Id;
     private String Pais;
-    private Integer Nombre;
+    private String Nombre;
     private String Telefono;
     private String Nota;
     private String Imagen;
 
-    public Contactos(Integer id, String pais, Integer nombre, String telefono, String nota, String imagen) {
+    public Contactos(Integer id, String pais, String nombre, String telefono, String nota, String imagen) {
         Id = id;
         Pais = pais;
         Nombre = nombre;
@@ -36,11 +36,11 @@ public class Contactos {
         Pais = pais;
     }
 
-    public Integer getNombre() {
+    public String getNombre() {
         return Nombre;
     }
 
-    public void setNombre(Integer nombre) {
+    public void setNombre(String nombre) {
         Nombre = nombre;
     }
 

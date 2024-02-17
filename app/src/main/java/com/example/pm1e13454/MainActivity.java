@@ -17,6 +17,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Base64;
+import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -29,6 +30,7 @@ import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 import Configuracion.PaisesTrans;
 import Configuracion.SQLiteConexion;
@@ -189,22 +191,35 @@ public class MainActivity extends AppCompatActivity {
     }
     private void AgregarContacto()
     {
-        SQLiteConexion conexion = new SQLiteConexion(this, Transacciones.DBName, null, 1);
-        SQLiteDatabase db = conexion.getWritableDatabase();
+        Pattern p = Pattern.compile("[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]");
+        if(nombre.getText().toString().isEmpty()){
+            Toast.makeText(getApplicationContext(), "¡Es obligatorio el campo nombre!", Toast.LENGTH_LONG).show();
+        }
+        else if(telefono.getText().toString().isEmpty()){
+            Toast.makeText(getApplicationContext(), "¡Es obligatorio el campo telefono!", Toast.LENGTH_LONG).show();
+        }else if(nota.getText().toString().isEmpty()){
+            Toast.makeText(getApplicationContext(), "¡Es obligatorio el campo nota!", Toast.LENGTH_LONG).show();
+        }else if(!p.matcher(telefono.getText().toString()).matches()){
+            Toast.makeText(getApplicationContext(), "¡Formato invalido para campo telefono!", Toast.LENGTH_LONG).show();
+        }
+        else{
+            SQLiteConexion conexion = new SQLiteConexion(this, Transacciones.DBName, null, 1);
+            SQLiteDatabase db = conexion.getWritableDatabase();
+            ContentValues valores = new ContentValues();
+            valores.put(Transacciones.nombre, nombre.getText().toString());
+            valores.put(Transacciones.telefono, telefono.getText().toString());
+            valores.put(Transacciones.pais, codigoPais);
+            valores.put(Transacciones.nota, nota.getText().toString());
+            valores.put(Transacciones.imagen, imagenBase64);
 
-        ContentValues valores = new ContentValues();
-        valores.put(Transacciones.nombre, nombre.getText().toString());
-        valores.put(Transacciones.telefono, telefono.getText().toString());
-        valores.put(Transacciones.pais, codigoPais);
-        valores.put(Transacciones.nota, nota.getText().toString());
-        valores.put(Transacciones.imagen, imagenBase64);
+            Long resultado = db.insert(Transacciones.TableContactos, Transacciones.id, valores);
 
-        Long resultado = db.insert(Transacciones.TableContactos, Transacciones.id, valores);
+            Toast.makeText(getApplicationContext(), "Registro Ingresado con exito " + resultado.toString(),
+                    Toast.LENGTH_LONG).show();
 
-        Toast.makeText(getApplicationContext(), "Registro Ingresado con exito " + resultado.toString(),
-                Toast.LENGTH_LONG).show();
+            db.close();
+        }
 
-        db.close();
     }
     private void AgregarPais(String codigo, String nombre)
     {

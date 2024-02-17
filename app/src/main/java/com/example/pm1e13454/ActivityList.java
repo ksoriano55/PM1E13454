@@ -1,15 +1,24 @@
 package com.example.pm1e13454;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Base64;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,9 +32,11 @@ import Models.Contactos;
 
 public class ActivityList extends AppCompatActivity {
     SQLiteConexion conexion;
-    Button btnRegresarHome;
+    Button btnRegresarHome, btnVerImagen;
     ListView listContact;
     ArrayList<Contactos> lista;
+    ArrayList<String> Arreglo;
+    Contactos contactoSelected;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +54,41 @@ public class ActivityList extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        btnVerImagen = (Button) findViewById(R.id.btnVerImagen);
+        btnVerImagen.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(contactoSelected.getImagen().isEmpty() || contactoSelected.getImagen() == null){
+                    Toast.makeText(getApplicationContext(), "No se puede visualizar la imagen", Toast.LENGTH_LONG).show();
+                }
+                else{
+                    // Convierte la cadena Base64 a un Bitmap
+                    byte[] decodedString = Base64.decode(contactoSelected.getImagen(), Base64.DEFAULT);
+                    Bitmap bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+
+                    AlertDialog.Builder builderFoto = new AlertDialog.Builder(ActivityList.this);
+                    LayoutInflater inflater = LayoutInflater.from(ActivityList.this);
+                    View viewFotoContacto = inflater.inflate(R.layout.foto_contacto, null);
+
+                    // Obtiene la referencia a la vista ImageView dentro del layout inflado
+                    ImageView imageView = viewFotoContacto.findViewById(R.id.imgFotoContacto);
+                    imageView.setImageBitmap(bitmap);
+
+                    builderFoto.setView(viewFotoContacto);
+                    AlertDialog dialogFoto = builderFoto.create();
+                    dialogFoto.show();
+                }
+            }
+        });
+
+
+        listContact.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                contactoSelected = lista.get(position);
+            }
+        });
     }
 
     private void ObtenerContactos() {
@@ -51,13 +97,6 @@ public class ActivityList extends AppCompatActivity {
         lista = new ArrayList<Contactos>();
 
         Cursor cursor = db.rawQuery(Transacciones.SelectAllContacts, null);
-
-
-        /*HashMap<String, String> contacts = new HashMap<>();
-        contacts.put("Joshua", "8819-8991");
-        contacts.put("Keyla", "8523-8991");
-        contacts.put("Marcela Aguilar", "9955-2145");
-        contacts.put("Cristel Lones", "1475-9632");*/
 
         List<HashMap<String, String>> items = new ArrayList<>();
         SimpleAdapter adp = new SimpleAdapter(this, items, R.layout.listcontact_items,
@@ -69,6 +108,16 @@ public class ActivityList extends AppCompatActivity {
             result.put("First Line", cursor.getString(1));
             result.put("Second Line", cursor.getString(2));
             items.add(result);
+
+            contacts = new Contactos();
+            contacts.setId(cursor.getInt(0));
+            contacts.setNombre(cursor.getString(1));
+            contacts.setTelefono(cursor.getString(2));
+            contacts.setPais(cursor.getString(3));
+            contacts.setNota(cursor.getString(4));
+            contacts.setImagen(cursor.getString(5));
+
+            lista.add(contacts);
         }
 
         listContact.setAdapter(adp);
