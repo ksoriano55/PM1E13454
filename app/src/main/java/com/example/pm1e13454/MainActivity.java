@@ -99,7 +99,6 @@ public class MainActivity extends AppCompatActivity {
                     EditarContacto();
                 }else{
                     AgregarContacto();
-                    ClearTexts();
                 }
             }
         });
@@ -300,6 +299,7 @@ public class MainActivity extends AppCompatActivity {
                     Toast.LENGTH_LONG).show();
 
             db.close();
+            ClearTexts();
         }
 
     }

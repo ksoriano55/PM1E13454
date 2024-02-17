@@ -20,9 +20,12 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.SearchView;
 import android.widget.SimpleAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -45,11 +48,14 @@ public class ActivityList extends AppCompatActivity {
     ArrayList<String> Arreglo;
     Contactos contactoSelected;
     String idContacto = "0";
+    SearchView txtSearch;
+    SimpleAdapter adp;
     int selectedItem = -1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
+        txtSearch  = (SearchView) findViewById(R.id.txtSearch);
 
         conexion = new SQLiteConexion(this, Transacciones.DBName, null, 1);
         listContact = (ListView) findViewById(R.id.listView);
@@ -71,8 +77,8 @@ public class ActivityList extends AppCompatActivity {
                 if(contactoSelected == null){
                     Toast.makeText(getApplicationContext(), "No tiene ningun contacto seleccionado", Toast.LENGTH_LONG).show();
                 }else
-                if(contactoSelected.getImagen().isEmpty() || contactoSelected.getImagen() == null){
-                    Toast.makeText(getApplicationContext(), "No se puede visualizar la imagen", Toast.LENGTH_LONG).show();
+                if(contactoSelected.getImagen() == null || contactoSelected.getImagen().isEmpty()){
+                    Toast.makeText(getApplicationContext(), "Este contacto no tiene imagen", Toast.LENGTH_LONG).show();
                 }
                 else{
                     // Convierte la cadena Base64 a un Bitmap
@@ -189,6 +195,19 @@ public class ActivityList extends AppCompatActivity {
                 }
             }
         });
+
+        txtSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String texto) {
+                adp.getFilter().filter(texto);
+                return false;
+            }
+        });
     }
 
     private void MensajeEliminar(){
@@ -235,7 +254,7 @@ public class ActivityList extends AppCompatActivity {
         Cursor cursor = db.rawQuery(Transacciones.SelectAllContacts, null);
 
         List<HashMap<String, String>> items = new ArrayList<>();
-        SimpleAdapter adp = new SimpleAdapter(this, items, R.layout.listcontact_items,
+        adp = new SimpleAdapter(this, items, R.layout.listcontact_items,
                 new String[]{"First Line", "Second Line"},
                 new int[]{R.id.txtItems, R.id.txtSubItems});
 
