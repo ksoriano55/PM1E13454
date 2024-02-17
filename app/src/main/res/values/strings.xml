@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">PM1E13454</string>
+    <string name="nombre">Ingrese Nombre</string>
+    <string name="telefono">Ingrese Teléfono</string>
+    <string name="nota">Ingrese nota...</string>
+    <string name="btnRegresar">Atras</string>
+    <string name="btnCompartirContacto">Compartir Contacto</string>
+    <string name="btnVerImagen">Ver Imagen</string>
+    <string name="btnEliminar">Eliminar Contacto</string>
+    <string name="btnActualizar">Actualizar Contacto</string>
 </resources>
