@@ -8,7 +8,7 @@
 
 
     <ImageView
-        android:id="@+id/imageView8"
+        android:id="@+id/fotoContacto"
         android:layout_width="224dp"
         android:layout_height="203dp"
         android:layout_marginStart="80dp"
@@ -28,7 +28,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.323"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView8" />
+        app:layout_constraintTop_toBottomOf="@+id/fotoContacto" />
 
     <EditText
         android:id="@+id/txtNombre"
@@ -105,7 +105,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.163"
         app:layout_constraintStart_toEndOf="@+id/spinnerPais"
-        app:layout_constraintTop_toBottomOf="@+id/imageView8" />
+        app:layout_constraintTop_toBottomOf="@+id/fotoContacto" />
 
     <EditText
         android:id="@+id/editTextCodigo"
@@ -118,4 +118,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="País" />
+
+    <Button
+        android:id="@+id/btnTomarFoto"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/btnFoto"
+        tools:layout_editor_absoluteX="125dp"
+        tools:layout_editor_absoluteY="142dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>

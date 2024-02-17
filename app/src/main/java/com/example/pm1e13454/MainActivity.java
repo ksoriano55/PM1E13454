@@ -1,27 +1,51 @@
 package com.example.pm1e13454;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
+
+import Configuracion.PaisesTrans;
 import Configuracion.SQLiteConexion;
 import Configuracion.Transacciones;
+import Models.Paises;
 
 public class MainActivity extends AppCompatActivity {
-
-    EditText nombre, telefono, nota, imagen;
+    EditText nombre, telefono, nota;
+    static final int peticion_camara = 100;
+    static final int  peticion_foto = 101;
     Spinner cbxPais;
-    Button btnListaContacto, btnGuardarContacto, btnAgregarPais;
+    Button btnListaContacto, btnGuardarContacto, btnAgregarPais, btnTomarFoto;
+    String imagenBase64;
+    Integer codigoPais;
+    ImageView imageView;
+    ArrayList<Paises> lista;
+    ArrayList<String> PaisesList;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,10 +55,15 @@ public class MainActivity extends AppCompatActivity {
         telefono = (EditText) findViewById(R.id.txtTelefono);
         cbxPais = (Spinner) findViewById(R.id.spinnerPais);
         nota = (EditText) findViewById(R.id.txtNota);
+        imageView = (ImageView) findViewById(R.id.fotoContacto);
 
+        //**********BOTONES**********//
         btnListaContacto = (Button) findViewById(R.id.btnListaContacto);
         btnGuardarContacto = (Button) findViewById(R.id.btnGuardarContacto);
+        btnAgregarPais = (Button) findViewById(R.id.btnAgregarPais);
+        btnTomarFoto = (Button)  findViewById(R.id.btnTomarFoto);
 
+        ///----------------------------------------------------------------------///
         btnListaContacto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -48,8 +77,6 @@ public class MainActivity extends AppCompatActivity {
                 AgregarContacto();
             }
         });
-
-        btnAgregarPais = (Button) findViewById(R.id.btnAgregarPais);
         btnAgregarPais.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -73,10 +100,9 @@ public class MainActivity extends AppCompatActivity {
                         if(txtCodPaisVal.isEmpty() || txtPaisVal.isEmpty()){
                             Toast.makeText(getApplicationContext(), "*Campos Obligatorios", Toast.LENGTH_LONG).show();
                         }else{
-                            ///Agregar netodo de guardar pais:
-
-
-                            Toast.makeText(getApplicationContext(), "Pais guardado con exito!", Toast.LENGTH_LONG).show();
+                            AgregarPais(txtCodPaisVal,txtPaisVal);
+                            llenarCombo();
+                           // Toast.makeText(getApplicationContext(), "Pais guardado con exito!", Toast.LENGTH_LONG).show();
                             dialogPais.dismiss();
                         }
                     }
@@ -90,8 +116,77 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         });
+        btnTomarFoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ObtenerPermisos();
+            }
+        });
+
+        //**--------------------ComboBox Paises----------------------**//
+        llenarCombo();
+        cbxPais.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                try
+                {
+                    codigoPais = lista.get(position).getCodigo();
+                }
+                catch (Exception ex)
+                {
+                    ex.toString();
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        ///********  Fin Combo Paises------------------*****************////////////
     }
 
+    private void llenarCombo(){
+        ObtenerPaises();
+        ArrayAdapter<CharSequence> adapter = new ArrayAdapter(this,
+                android.R.layout.simple_spinner_item, PaisesList);
+
+        cbxPais.setAdapter(adapter);
+    }
+    private void ObtenerPaises()
+    {
+        SQLiteConexion conexion = new SQLiteConexion(this, Transacciones.DBName, null, 1);
+        SQLiteDatabase db = conexion.getReadableDatabase();
+        Paises paises = null;
+        lista = new ArrayList<Paises>();
+
+        // Cursor de base de datos para recorrer los datos
+        Cursor cursor = db.rawQuery(PaisesTrans.SelectAllPaises, null);
+
+        while (cursor.moveToNext())
+        {
+            paises = new Paises();
+            paises.setId(cursor.getInt(0));
+            paises.setCodigo(cursor.getInt(1));
+            paises.setNombre(cursor.getString(2));
+
+            lista.add(paises);
+        }
+
+        cursor.close();
+
+        FillData();
+    }
+
+    private void FillData()
+    {
+        PaisesList = new ArrayList<String>();
+        for(int i = 0; i < lista.size(); i ++)
+        {
+            PaisesList.add(lista.get(i).getNombre()  +" - "+ lista.get(i).getCodigo()) ;
+        }
+    }
     private void AgregarContacto()
     {
         SQLiteConexion conexion = new SQLiteConexion(this, Transacciones.DBName, null, 1);
@@ -100,9 +195,9 @@ public class MainActivity extends AppCompatActivity {
         ContentValues valores = new ContentValues();
         valores.put(Transacciones.nombre, nombre.getText().toString());
         valores.put(Transacciones.telefono, telefono.getText().toString());
-        valores.put(Transacciones.pais, "504");
+        valores.put(Transacciones.pais, codigoPais);
         valores.put(Transacciones.nota, nota.getText().toString());
-        valores.put(Transacciones.imagen, "");
+        valores.put(Transacciones.imagen, imagenBase64);
 
         Long resultado = db.insert(Transacciones.TableContactos, Transacciones.id, valores);
 
@@ -110,6 +205,80 @@ public class MainActivity extends AppCompatActivity {
                 Toast.LENGTH_LONG).show();
 
         db.close();
+    }
+    private void AgregarPais(String codigo, String nombre)
+    {
+        SQLiteConexion conexion = new SQLiteConexion(this, Transacciones.DBName, null, 1);
+        SQLiteDatabase db = conexion.getWritableDatabase();
 
+        ContentValues valores = new ContentValues();
+        valores.put(PaisesTrans.codigo, codigo);
+        valores.put(PaisesTrans.nombre, nombre);
+
+        Long resultado = db.insert(PaisesTrans.TablePaises, Transacciones.id, valores);
+
+        Toast.makeText(getApplicationContext(), "Registro Ingresado con exito " + resultado.toString(),
+                Toast.LENGTH_LONG).show();
+
+        db.close();
+    }
+    private void ObtenerPermisos()
+    {
+        if(ContextCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED)
+        {
+            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.CAMERA},
+                    peticion_camara);
+        }
+        else
+        {
+            CapturarFoto();
+        }
+    }
+    private void CapturarFoto()
+    {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+        if(intent.resolveActivity(getPackageManager()) != null)
+        {
+            startActivityForResult(intent, peticion_foto);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull
+    int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if(requestCode == peticion_camara)
+        {
+            if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            {
+                CapturarFoto();
+            }
+            else
+            {
+                Toast.makeText(getApplicationContext(), "!Alto ahi!, Permiso denegado", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == peticion_foto && resultCode == RESULT_OK)
+        {
+            Bundle extras = data.getExtras();
+            Bitmap imagen = (Bitmap) extras.get("data");
+            imageView.setImageBitmap(imagen);
+
+            /*---------Convertir imagen a base64-------*/
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            imagen.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+            byte[] byteArray = byteArrayOutputStream.toByteArray();
+            imagenBase64 = Base64.encodeToString(byteArray, Base64.DEFAULT);
+        }
     }
 }

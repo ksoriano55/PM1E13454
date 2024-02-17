@@ -4,7 +4,6 @@ public class Transacciones {
     public static final String DBName = "PM1E13454";
 
     public static final String TableContactos = "contactos";
-
     public static final String id = "id";
     public static final String nombre = "nombre";
     public static final String telefono = "telefono";

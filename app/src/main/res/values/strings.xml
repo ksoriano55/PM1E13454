@@ -10,4 +10,5 @@
     <string name="btnActualizar">Actualizar Contacto</string>
     <string name="txtCodPais">Ingrese Código</string>
     <string name="txtPais">Ingrese País</string>
+    <string name="btnFoto">Capturar Foto</string>
 </resources>
