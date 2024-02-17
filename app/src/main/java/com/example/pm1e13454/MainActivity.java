@@ -1,11 +1,13 @@
 package com.example.pm1e13454;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
 
     EditText nombre, telefono, nota, imagen;
     Spinner cbxPais;
-    Button btnListaContacto, btnGuardarContacto;
+    Button btnListaContacto, btnGuardarContacto, btnAgregarPais;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,6 +46,48 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 AgregarContacto();
+            }
+        });
+
+        btnAgregarPais = (Button) findViewById(R.id.btnAgregarPais);
+        btnAgregarPais.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builderPais = new AlertDialog.Builder(MainActivity.this);
+                LayoutInflater inflater = LayoutInflater.from(MainActivity.this);
+                View viewPais = inflater.inflate(R.layout.dialogo_paises, null);
+
+                builderPais.setView(viewPais);
+                AlertDialog dialogPais = builderPais.create();
+                dialogPais.show();
+
+                EditText txtCodPais = viewPais.findViewById(R.id.txtCodPais);
+                EditText txtPais = viewPais.findViewById(R.id.txtPais);
+
+                viewPais.findViewById(R.id.btnGuardarPais).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String txtCodPaisVal = txtCodPais.getText().toString();
+                        String txtPaisVal = txtPais.getText().toString();
+
+                        if(txtCodPaisVal.isEmpty() || txtPaisVal.isEmpty()){
+                            Toast.makeText(getApplicationContext(), "*Campos Obligatorios", Toast.LENGTH_LONG).show();
+                        }else{
+                            ///Agregar netodo de guardar pais:
+
+
+                            Toast.makeText(getApplicationContext(), "Pais guardado con exito!", Toast.LENGTH_LONG).show();
+                            dialogPais.dismiss();
+                        }
+                    }
+                });
+
+                viewPais.findViewById(R.id.btnCancelarPais).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialogPais.dismiss();
+                    }
+                });
             }
         });
     }

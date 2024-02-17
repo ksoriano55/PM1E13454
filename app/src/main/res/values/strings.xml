@@ -8,4 +8,6 @@
     <string name="btnVerImagen">Ver Imagen</string>
     <string name="btnEliminar">Eliminar Contacto</string>
     <string name="btnActualizar">Actualizar Contacto</string>
+    <string name="txtCodPais">Ingrese Código</string>
+    <string name="txtPais">Ingrese País</string>
 </resources>

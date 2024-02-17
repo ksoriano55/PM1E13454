@@ -22,11 +22,11 @@
 
     <Spinner
         android:id="@+id/spinnerPais"
-        android:layout_width="302dp"
-        android:layout_height="43dp"
+        android:layout_width="244dp"
+        android:layout_height="36dp"
         android:layout_marginTop="56dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.495"
+        app:layout_constraintHorizontal_bias="0.323"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView8" />
 
@@ -95,4 +95,27 @@
         app:layout_constraintStart_toEndOf="@+id/btnGuardarContacto"
         app:layout_constraintTop_toBottomOf="@+id/txtNota" />
 
+    <Button
+        android:id="@+id/btnAgregarPais"
+        android:layout_width="44dp"
+        android:layout_height="38dp"
+        android:layout_marginTop="56dp"
+        android:backgroundTint="#009688"
+        android:text="+"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.163"
+        app:layout_constraintStart_toEndOf="@+id/spinnerPais"
+        app:layout_constraintTop_toBottomOf="@+id/imageView8" />
+
+    <EditText
+        android:id="@+id/editTextCodigo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Código" />
+
+    <EditText
+        android:id="@+id/editTextPais"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="País" />
 </androidx.constraintlayout.widget.ConstraintLayout>
